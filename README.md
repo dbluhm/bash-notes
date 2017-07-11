@@ -10,6 +10,8 @@ Suggested Dependencies
 - I recommend using [Neovim](https://neovim.io/) as your editor with [Vim-Plug](https://github.com/junegunn/vim-plug) and [Goyo](https://github.com/junegunn/goyo.vim). I really feel that `nvim` with these plugins is what really makes this nice for me.
 - [Ag](https://github.com/ggreer/the_silver_searcher) is used for searching. It's faster than `grep`, which is used in it's place if `ag` couldn't be found.
 
+![Note taking demo](https://raw.githubusercontent.com/dbluhm/bash-notes/master/notes.gif)
+
 Getting Started
 ---------------------
 The `notes.sh` command will by default create your notes and notebooks inside of `$HOME/.notes`.
@@ -47,8 +49,7 @@ source ~/PATH_TO_NOTES_EXEC/notes_completion
 
 You should now be able to use the `notes` command and have tab completion.
 
-Usage
-------
+### Usage ###
 
 Notes, having been intended to be simple, it's command line arguments are hopefully pretty straightforward.
 Let's take a look at how to use notes by creating our first notebook and adding some notes to it.
