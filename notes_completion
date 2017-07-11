@@ -1,0 +1,21 @@
+NOTESDIR="$HOME/.notes"
+
+_notes () {
+    local cur
+
+    COMPREPLY=()
+    cur=${COMP_WORDS[COMP_CWORD]}
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    if [ "$prev" == "notes" ]; then
+        COMPREPLY=( $(compgen -W "--search -s --remove -r --add -a $(find $NOTESDIR -type d -name '.git' -prune -o -type d -not -name '.notes*' -not -name '.git' -printf "%f\n")" -- ${cur}))
+    elif [ "$prev" == "--search" ] || [ "$prev" == "-s" ] || [ "$prev" == "-r" ] || [ "$prev" == "--remove" ]; then
+        COMPREPLY=( $(compgen -W "$(find $NOTESDIR -type d -name '.git' -prune -o -type d -not -name '.notes*' -not -name '.git' -printf "%f\n")" -- ${cur}))
+    elif [ ${#COMP_WORDS[@]} -lt 5 ] && [ ! "$prev" == "--add" ] && [ ! "$prev" == "-a" ]; then
+        notebook=$(find $NOTESDIR -type d -name $prev)
+        COMPREPLY=( $(compgen -W "$(find $notebook -maxdepth 1 -type f -printf "%f\n" | sed -e 's/\.md$//')" -- ${cur}))
+    fi
+}
+complete -o nosort -F _notes notes
+
+# vi:syntax=sh
