@@ -3,6 +3,13 @@ Notes
 
 Notes is a simple CLI program for taking notes in Markdown using your preferred text editor.
 
+This is mostly for my personal use. I'll admit to taking a few shortcuts so my code isn't the prettiest thing in the world. But it works for me.
+
+Suggested Dependencies
+--------------------------
+- I recommend using [Neovim](https://neovim.io/) as your editor with [Vim-Plug](https://github.com/junegunn/vim-plug) and [Goyo](https://github.com/junegunn/goyo.vim). I really feel that `nvim` with these plugins is what really makes this nice for me.
+- [Ag](https://github.com/ggreer/the_silver_searcher) is used for searching. It's faster than `grep`, which is used in it's place if `ag` couldn't be found.
+
 Getting Started
 ---------------------
 The `notes.sh` command will by default create your notes and notebooks inside of `$HOME/.notes`.
@@ -61,4 +68,6 @@ notes my_first_notebook my_first_note
 ```
 *There should have been tab completion on the notebook name*
 
-This will open up your preferred editor as defined by the EDITOR environment variable. *(`nvim` is the preferred editor.)* You may now edit and save your note as you normally would.
+This will open up your preferred editor as defined by the EDITOR environment variable, putting preference on `nvim` if it is present. You may now edit and save your note as you normally would.
+
+*This README is a work in progress.*
