@@ -11,7 +11,7 @@ _notes () {
         COMPREPLY=( $(compgen -W "--search -s --remove -r --add -a $(find $NOTESDIR -type d -name '.git' -prune -o -type d -not -name '.notes*' -not -name '.git' -printf "%f\n")" -- ${cur}))
     elif [ "$prev" == "--search" ] || [ "$prev" == "-s" ] || [ "$prev" == "-r" ] || [ "$prev" == "--remove" ]; then
         COMPREPLY=( $(compgen -W "$(find $NOTESDIR -type d -name '.git' -prune -o -type d -not -name '.notes*' -not -name '.git' -printf "%f\n")" -- ${cur}))
-    elif [ ${#COMP_WORDS[@]} -lt 5 ] && [ ! "$prev" == "--add" ] && [ ! "$prev" == "-a" ]; then
+    elif [ ${COMP_WORDS[COMP_CWORD-2]} == "--remove" ] || [ ${COMP_WORDS[COMP_CWORD-2]} == "-r" ] || [ ${#COMP_WORDS[@]} -lt 4 ] && [ ! "$prev" == "--add" ] && [ ! "$prev" == "-a" ]; then
         notebook=$(find $NOTESDIR -type d -name $prev)
         COMPREPLY=( $(compgen -W "$(find $notebook -maxdepth 1 -type f -printf "%f\n" | sed -e 's/\.md$//')" -- ${cur}))
     fi
