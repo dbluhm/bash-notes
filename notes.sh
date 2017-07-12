@@ -63,8 +63,9 @@ __remove() {
     exit 0;
 }
 
+
 if [[ $# -gt 1 ]]; then
-    case $1 in
+    case "$1" in
         -s|--search)
             SEARCHSTR="$2"
             ;;
@@ -77,7 +78,8 @@ if [[ $# -gt 1 ]]; then
             ;;
         *)
             NOTEBOOK="$1"
-            NOTE="$2"
+            shift
+            NOTE="$1"
             shift
             ;;
     esac
@@ -100,5 +102,6 @@ elif [ -n "$ADDNAME" ]; then
         echo "Error while creating Notbook $ADDNAME"
     fi
 elif [ -n "$NOTEBOOK" ]; then
-    __edit $NOTEBOOK $NOTE #If note not set, create a new one
+    #__edit $NOTEBOOK $NOTE #If note not set, create a new one
+    echo "$NOTEBOOK; $NOTE"
 fi
