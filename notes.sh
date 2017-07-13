@@ -88,6 +88,16 @@ __remove() {
     exit 0;
 }
 
+__path_until_file() {
+    path=""
+    n=$(eval "echo $1")
+    while [ -d "$NOTESDIR/$path$n" ]; do
+        path="$path$n/"
+        shift
+        n=$(eval "echo $1")
+    done
+    echo $path
+}
 
 if [[ $# -gt 1 ]]; then
     case "$1" in
@@ -103,9 +113,9 @@ if [[ $# -gt 1 ]]; then
             ADDNAME=$(eval "echo $2")
             ;;
         *)
-            NOTEBOOK=$(eval "echo $1")
-            shift
-            NOTE=$(eval "echo $1")
+            NOTEBOOK=$(__path_until_file ${@:1})
+            echo $NOTEBOOK
+            NOTE=$(eval "echo ${@: -1}")
             ;;
     esac
 else
