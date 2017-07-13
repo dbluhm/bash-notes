@@ -46,11 +46,17 @@ __edit() {
 
     if [[ $EDITOR == "nvim" ]] && hash nvim >/dev/null 2>&1; then
         nvim "+cd $NOTESDIR/$1" "+Goyo" "$edit"
-    elif hash $EDITOR >/dev/null 2>&1; then
+    elif [ -n "$EDITOR" ] && hash $EDITOR >/dev/null 2>&1; then
         old=$(pwd)
         cd $NOTESDIR/$1 && $EDITOR "$edit"; cd $old
+    elif hash vi >/dev/null 2>&1; then
+        echo "Warning: Your EDITOR environment variable is not configured."
+        echo "Attempting to use vi"
+        old=$(pwd)
+        cd $NOTESDIR/$1 && vi "$edit"; cd $old
     else
-        echo "Error: Your EDITOR environment variable is not configured!"
+        echo "Error: Your EDITOR environment variable is not configured"
+        echo "and vi could not be used as a backup."
         exit 1
     fi
 }
