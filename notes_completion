@@ -1,20 +1,21 @@
 NOTESDIR="$HOME/.notes"
 
 __dirs() {
-    while read -d '' -r file; do
-        printf -v name "%q" "$file"
-        basename "$name"
-    done < <(find $NOTESDIR -type d -name '.git' -prune -o -type d -not -name '.notes*' -not -name '.git' -print0)
+    for f in $NOTESDIR/*; do
+        [ -d "$f" ] || continue
+        [[ "$f" == ".git" ]] && continue
+        basename "$(printf "%q\n" "$f")"
+    done
     if [ -n "$1" ]; then
         echo "--search -s --remove -r --add -a"
     fi
 }
 
 __files() {
-    while read -d '' -r file; do
-        printf -v name "%q" "$file"
-        basename "$name"
-    done < <(find $NOTESDIR -type d -name '.git' -prune -o -type d -not -name '.notes*' -not -name '.git' -print0)
+    for f in /home/dbluhm/.notes/"$(eval "echo $1")"/*; do
+        [ -d "$f" ] && continue
+        basename "$(printf "%q\n" "$f")" | sed -e 's/\.md//'
+    done
 }
 
 _notes () {
@@ -22,15 +23,21 @@ _notes () {
 
     COMPREPLY=()
     cur=${COMP_WORDS[COMP_CWORD]}
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    if [ "$prev" == "notes" ]; then
+    if [ ${#COMP_WORDS[@]} -gt 2 ] && [ $COMP_CWORD -eq 2 ]; then
+        case "${COMP_WORDS[1]}" in
+            -s|--search)
+                ;;
+            -r|--remove)
+                ;;
+            -a|--add)
+                ;;
+            *)
+                mapfile -t COMPREPLY < <(compgen -W "$(__files "${COMP_WORDS[1]}")" -- "${cur}")
+                ;;
+        esac
+    elif [ ${#COMP_WORDS[@]} -eq 2 ]; then
         mapfile -t COMPREPLY < <( compgen -W "$(__dirs)" -- "${cur}" )
-    elif [ "$prev" == "--search" ] || [ "$prev" == "-s" ] || [ "$prev" == "-r" ] || [ "$prev" == "--remove" ]; then
-        COMPREPLY=( $(compgen -W "$(find $NOTESDIR -type d -name '.git' -prune -o -type d -not -name '.notes*' -not -name '.git' -printf "%f\n")" -- ${cur}))
-    elif [ ${COMP_WORDS[COMP_CWORD-2]} == "--remove" ] || [ ${COMP_WORDS[COMP_CWORD-2]} == "-r" ] || [ ${#COMP_WORDS[@]} -lt 4 ] && [ ! "$prev" == "--add" ] && [ ! "$prev" == "-a" ]; then
-        notebook=$(find $NOTESDIR -type d -name $prev)
-        COMPREPLY=( $(compgen -W "$(find $notebook -maxdepth 1 -type f -printf "%f\n" | sed -e 's/\.md$//')" -- "${cur}"))
     fi
 }
 complete -o filenames -F _notes notes
