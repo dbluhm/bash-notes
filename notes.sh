@@ -44,7 +44,7 @@ __edit() {
         edit="$NOTESDIR/$1/$2.md"
     fi
 
-    if hash nvim >/dev/null 2>&1; then
+    if [[ $EDITOR == "nvim" ]] && hash nvim >/dev/null 2>&1; then
         nvim "+cd $NOTESDIR/$1" "+Goyo" "$edit"
     elif hash $EDITOR >/dev/null 2>&1; then
         old=$(pwd)
