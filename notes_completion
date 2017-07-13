@@ -29,6 +29,7 @@ _notes () {
             -s|--search)
                 ;;
             -r|--remove)
+                mapfile -t COMPREPLY < <( compgen -W "$(__dirs)" -- "${cur}" )
                 ;;
             -a|--add)
                 ;;
@@ -36,8 +37,16 @@ _notes () {
                 mapfile -t COMPREPLY < <(compgen -W "$(__files "${COMP_WORDS[1]}")" -- "${cur}")
                 ;;
         esac
+    elif [ ${#COMP_WORDS[@]} -gt 2 ] && [ $COMP_CWORD -eq 3 ]; then
+        case "${COMP_WORDS[1]}" in
+            -r|--remove)
+                mapfile -t COMPREPLY < <(compgen -W "$(__files "${COMP_WORDS[2]}")" -- "${cur}")
+            ;;
+            *)
+            ;;
+        esac
     elif [ ${#COMP_WORDS[@]} -eq 2 ]; then
-        mapfile -t COMPREPLY < <( compgen -W "$(__dirs)" -- "${cur}" )
+        mapfile -t COMPREPLY < <( compgen -W "$(__dirs 1)" -- "${cur}" )
     fi
 }
 complete -o filenames -F _notes notes
