@@ -1,3 +1,4 @@
+#!/bin/bash
 NOTESDIR="$HOME/.notes"
 
 OLD_DIR=`pwd`
