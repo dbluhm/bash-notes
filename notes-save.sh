@@ -6,6 +6,7 @@ git add .
 modified=$(git diff --name-status HEAD)
 if [ -z "$modified" ]; then
     echo "Nothing to commit"
+    exit 0
 fi
 count=$(wc -l <<< "$modified")
 git commit -m "$count file(s) changed
