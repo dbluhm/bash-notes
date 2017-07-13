@@ -12,37 +12,40 @@ __dirs() {
 }
 
 __files() {
-    for f in /home/dbluhm/.notes/"$(eval "echo $1")"/*; do
-        [ -d "$f" ] && continue
+    shopt -s nullglob
+    for f in $NOTESDIR/"$(eval "echo $1")"/*; do
+        [[ "$f" == ".git" ]] && continue
         basename "$(printf "%q\n" "$f")" | sed -e 's/\.md//'
     done
 }
 
 _notes () {
     local cur
+    local potential_path
+    local wanted_len
 
     COMPREPLY=()
-    cur=${COMP_WORDS[COMP_CWORD]}
+    cur="${COMP_WORDS[COMP_CWORD]}"
 
-    if [ ${#COMP_WORDS[@]} -gt 2 ] && [ $COMP_CWORD -eq 2 ]; then
+    if [ ${#COMP_WORDS[@]} -gt 2 ]; then
         case "${COMP_WORDS[1]}" in
-            -s|--search)
-                ;;
             -r|--remove)
-                mapfile -t COMPREPLY < <( compgen -W "$(__dirs)" -- "${cur}" )
-                ;;
+                wanted_len=${#COMP_WORDS[@]}-3
+                potential_path=$(eval "echo $(printf "%s/" "${COMP_WORDS[@]:2:$wanted_len}")")
+                if [ -d $NOTESDIR/"$potential_path" ];then
+                    mapfile -t COMPREPLY < <(compgen -W "$(__files "$potential_path")" -- "${cur}")
+                fi
+            ;;
             -a|--add)
-                ;;
-            *)
-                mapfile -t COMPREPLY < <(compgen -W "$(__files "${COMP_WORDS[1]}")" -- "${cur}")
-                ;;
-        esac
-    elif [ ${#COMP_WORDS[@]} -gt 2 ] && [ $COMP_CWORD -eq 3 ]; then
-        case "${COMP_WORDS[1]}" in
-            -r|--remove)
-                mapfile -t COMPREPLY < <(compgen -W "$(__files "${COMP_WORDS[2]}")" -- "${cur}")
+            ;;
+            -s|--search)
             ;;
             *)
+                wanted_len=${#COMP_WORDS[@]}-2
+                potential_path=$(eval "echo $(printf "%s/" "${COMP_WORDS[@]:1:$wanted_len}")")
+                if [ -d $NOTESDIR/"$potential_path" ];then
+                    mapfile -t COMPREPLY < <(compgen -W "$(__files "$potential_path")" -- "${cur}")
+                fi
             ;;
         esac
     elif [ ${#COMP_WORDS[@]} -eq 2 ]; then
