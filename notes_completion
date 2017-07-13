@@ -12,7 +12,7 @@ __dirs() {
 }
 
 __files() {
-    for f in /home/dbluhm/.notes/"$(eval "echo $1")"/*; do
+    for f in $NOTESDIR/"$(eval "echo $1")"/*; do
         [ -d "$f" ] && continue
         basename "$(printf "%q\n" "$f")" | sed -e 's/\.md//'
     done
