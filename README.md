@@ -7,10 +7,9 @@ This is mostly for my personal use. I'll admit to taking a few shortcuts so my c
 
 Suggested Dependencies
 --------------------------
-- I recommend using [Neovim](https://neovim.io/) as your editor with [Vim-Plug](https://github.com/junegunn/vim-plug) and [Goyo](https://github.com/junegunn/goyo.vim). I really feel that `nvim` with these plugins is what really makes this nice for me.
-- [Ag](https://github.com/ggreer/the_silver_searcher) is used for searching. It's faster than `grep`, which is used in it's place if `ag` couldn't be found.
+- I recommend using [Neovim](https://neovim.io/) as your editor with [Vim-Plug](https://github.com/junegunn/vim-plug) and [Goyo](https://github.com/junegunn/goyo.vim). Using Vim or NeoVim allows you to create and edit your notes exactly the way you want.
+- [Ag](https://github.com/ggreer/the_silver_searcher) is used for searching. It's faster than `grep`, which is used in it's place if `ag` can't be found.
 
-![Note taking demo](https://raw.githubusercontent.com/dbluhm/bash-notes/master/notes.gif)
 
 Getting Started
 ---------------------
@@ -49,26 +48,22 @@ source ~/PATH_TO_NOTES_EXEC/notes_completion
 
 You should now be able to use the `notes` command and have tab completion.
 
+![Note taking demo](https://raw.githubusercontent.com/dbluhm/bash-notes/master/notes.gif)
+
 ### Usage ###
 
-Notes, having been intended to be simple, it's command line arguments are hopefully pretty straightforward.
-Let's take a look at how to use notes by creating our first notebook and adding some notes to it.
-
-```bash
-notes --add my_first_notebook
 ```
+Usage:
+	notes notebook [note]
+		Edit or create a note. Omitting a note name will create a new note but
+		leave it unnamed.
 
->**NOTE:** As of right now, note or notebook names with spaces are not supported
+	notes [--search|-s] SEARCH_TERM
+		Search notes for SEARCH_TERM.
 
-This will basically just create a folder inside of your notes directory called `my_first_notebook`. That's it. That's all a "notebook" is.
+	notes [--remove|-r] notebook [note]
+		Remove an entire notebook or just a note within a notebook.
 
-Now let's add a note to this notebook:
-
-```bash
-notes my_first_notebook my_first_note
+	notes [--add|-a] notebook
+		Create a new notebook
 ```
-*There should have been tab completion on the notebook name*
-
-This will open up your preferred editor as defined by the EDITOR environment variable, putting preference on `nvim` if it is present. You may now edit and save your note as you normally would.
-
-*This README is a work in progress.*

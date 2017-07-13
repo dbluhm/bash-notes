@@ -11,7 +11,22 @@ fi
 
 __usage() {
     echo $1
-    echo "Usage text here"
+    local ul="\e[4m"
+    local it="\e[3m"
+    local cl="\e[0m"
+    echo -e "Usage:
+\tnotes $ul${it}notebook$cl [${ul}${it}note$cl]
+\t\tEdit or create a note. Omitting a note name will create a new note but
+\t\tleave it unnamed.
+
+\tnotes [--search|-s] $ul${it}SEARCH_TERM$cl
+\t\tSearch notes for $ul${it}SEARCH_TERM$cl.
+
+\tnotes [--remove|-r] $ul${it}notebook$cl [${ul}${it}note$cl]
+\t\tRemove an entire notebook or just a note within a notebook.
+
+\tnotes [--add|-a] $ul${it}notebook$cl
+\t\tCreate a new notebook"
     exit 1;
 }
 
