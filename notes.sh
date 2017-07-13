@@ -16,20 +16,24 @@ __usage() {
 }
 
 __edit() {
-    path_to_notebook=$(find $NOTESDIR -type d -name $1) #Get full path
-    if [ -z $2 ]; then
-        echo "Opening new note in $1"
+    if [ ! -d "$NOTESDIR/$1" ]; then
+        echo "Error: notebook \"$1\" does not exist!"
+        exit 1
+    fi
+
+    if [ -z "$2" ]; then
+        echo "Opening new note in \"$1\""
         edit=""
     else
-        echo "Opening $2.md from notebook $path_to_notebook"
-        edit="$path_to_notebook/$2.md"
+        echo "Opening \"$2.md\" from notebook \"$1\""
+        edit="$NOTESDIR/$1/$2.md"
     fi
 
     if hash nvim >/dev/null 2>&1; then
-        nvim "+cd $path_to_notebook" "+Goyo" "$edit"
+        nvim "+cd $NOTESDIR/$1" "+Goyo" "$edit"
     elif hash $EDITOR >/dev/null 2>&1; then
         old=$(pwd)
-        cd $path_to_notebook && $EDITOR "$edit"; cd $old
+        cd $NOTESDIR/$1 && $EDITOR "$edit"; cd $old
     else
         echo "Error: Your EDITOR environment variable is not configured!"
         exit 1
@@ -38,16 +42,16 @@ __edit() {
 
 __search() {
     if hash ag  >/dev/null 2>&1; then
-        ag $1 $2
+        ag "$1" "$2"
     else
-        grep --color=auto --exclude-dir .git -iR $1 $2
+        grep --color=auto --exclude-dir .git -iR "$1" "$2"
     fi
 }
 
 __remove() {
-    if [ -z $2 ]; then
+    if [ -z "$2" ]; then
         echo "Warning: Deleting notebook $1. This will remove all notes within this notebook."
-        path_to_delete=$1
+        path_to_delete="$1"
     else
         echo "Warning: Deleting note $2.md from notebook $1. You will not be able to recover this note easily."
         path_to_delete="$1/$2.md"
@@ -55,7 +59,7 @@ __remove() {
     read -p "Are you sure? [y/n] " -n 1 -r
     echo
     if [[ $REPLY =~ ^[yY]$ ]]; then
-        rm -rf $NOTESDIR/$path_to_delete
+        rm -rf "$NOTESDIR/$path_to_delete"
         if [ $? -eq 0 ]; then echo "$path_to_delete removed."; else echo "Error while deleting $path_to_delete"; fi
     else
         echo "Cancelled"
@@ -67,20 +71,20 @@ __remove() {
 if [[ $# -gt 1 ]]; then
     case "$1" in
         -s|--search)
-            SEARCHSTR="$2"
+            shift
+            SEARCHSTR=$@
             ;;
         -r|--remove)
-            NOTEBOOKREMOVEPATH="$2"
-            NOTEREMOVEPATH="$3"
+            NOTEBOOKREMOVEPATH=$(eval "echo $2")
+            NOTEREMOVEPATH=$(eval "echo $3")
             ;;
         -a|--add)
-            ADDNAME="$2"
+            ADDNAME=$(eval "echo $2")
             ;;
         *)
-            NOTEBOOK="$1"
+            NOTEBOOK=$(eval "echo $1")
             shift
-            NOTE="$1"
-            shift
+            NOTE=$(eval "echo $1")
             ;;
     esac
 else
@@ -88,20 +92,19 @@ else
 fi
 
 if [ -n "$SEARCHSTR" ]; then
-    echo "Searching all notesbooks for $SEARCHSTR..."
-    __search $SEARCHSTR $NOTESDIR
+    echo "Searching all notebooks for \"$SEARCHSTR...\""
+    __search "$SEARCHSTR" "$NOTESDIR"
     exit 0;
 elif [ -n "$NOTEBOOKREMOVEPATH" ]; then
-    __remove $NOTEBOOKREMOVEPATH $NOTEREMOVEPATH
+    __remove "$NOTEBOOKREMOVEPATH" "$NOTEREMOVEPATH"
 elif [ -n "$ADDNAME" ]; then
     echo "Creating new notebook $ADDNAME..."
-    mkdir $NOTESDIR/$ADDNAME
-    if [ -d $NOTESDIR/$ADDNAME ]; then
-        echo "Notebook $ADDNAME successfully created"
+    mkdir "$NOTESDIR/$ADDNAME"
+    if [ -d "$NOTESDIR/$ADDNAME" ]; then
+        echo "Notebook \"$ADDNAME\" successfully created"
     else
-        echo "Error while creating Notbook $ADDNAME"
+        echo "Error while creating Notbook \"$ADDNAME\""
     fi
 elif [ -n "$NOTEBOOK" ]; then
-    #__edit $NOTEBOOK $NOTE #If note not set, create a new one
-    echo "$NOTEBOOK; $NOTE"
+    __edit "$NOTEBOOK" "$NOTE" #If note not set, create a new one
 fi
