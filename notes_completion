@@ -15,6 +15,7 @@ __files() {
     shopt -s nullglob
     for f in $NOTESDIR/"$(eval "echo $1")"/*; do
         [[ "$f" == ".git" ]] && continue
+        [ -n "$2" ] && [ -f "$f" ] && continue
         basename "$(printf "%q\n" "$f")" | sed -e 's/\.md//'
     done
 }
@@ -37,6 +38,11 @@ _notes () {
                 fi
             ;;
             -a|--add)
+                wanted_len=${#COMP_WORDS[@]}-3
+                potential_path=$(eval "echo $(printf "%s/" "${COMP_WORDS[@]:2:$wanted_len}")")
+                if [ -d $NOTESDIR/"$potential_path" ];then
+                    mapfile -t COMPREPLY < <(compgen -W "$(__files "$potential_path" 1)" -- "${cur}")
+                fi
             ;;
             -s|--search)
             ;;

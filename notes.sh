@@ -75,7 +75,7 @@ __remove() {
         path_to_delete="$1"
     else
         echo "Warning: Deleting note $2.md from notebook $1. You will not be able to recover this note easily."
-        path_to_delete="$1/$2.md"
+        path_to_delete="$1$2.md"
     fi
     read -p "Are you sure? [y/n] " -n 1 -r
     echo
@@ -91,7 +91,7 @@ __remove() {
 __path_until_file() {
     path=""
     n=$(eval "echo $1")
-    while [ -d "$NOTESDIR/$path$n" ]; do
+    while [ -d "$NOTESDIR/$path$n" ] && [ $# -gt 0 ]; do
         path="$path$n/"
         shift
         n=$(eval "echo $1")
@@ -106,15 +106,16 @@ if [[ $# -gt 1 ]]; then
             SEARCHSTR=$@
             ;;
         -r|--remove)
-            NOTEBOOKREMOVEPATH=$(eval "echo $2")
-            NOTEREMOVEPATH=$(eval "echo $3")
+            NOTEBOOKREMOVEPATH=$(__path_until_file "${@:2}")
+            NOTEREMOVEPATH=$(eval "echo ${@: -1}")
+            [ -f "$NOTESDIR/$NOTEBOOKREMOVEPATH/$NOTEREMOVEPATH.md" ] || unset NOTEREMOVEPATH
             ;;
         -a|--add)
-            ADDNAME=$(eval "echo $2")
+            ADDPATH=$(__path_until_file "${@:2}")
+            ADDNAME=$(eval "echo ${@: -1}")
             ;;
         *)
-            NOTEBOOK=$(__path_until_file ${@:1})
-            echo $NOTEBOOK
+            NOTEBOOK=$(__path_until_file "${@:1}")
             NOTE=$(eval "echo ${@: -1}")
             ;;
     esac
@@ -129,9 +130,9 @@ if [ -n "$SEARCHSTR" ]; then
 elif [ -n "$NOTEBOOKREMOVEPATH" ]; then
     __remove "$NOTEBOOKREMOVEPATH" "$NOTEREMOVEPATH"
 elif [ -n "$ADDNAME" ]; then
-    echo "Creating new notebook $ADDNAME..."
-    mkdir "$NOTESDIR/$ADDNAME"
-    if [ -d "$NOTESDIR/$ADDNAME" ]; then
+    echo "Creating new notebook $ADDPATH$ADDNAME..."
+    mkdir "$NOTESDIR/$ADDPATH$ADDNAME"
+    if [ -d "$NOTESDIR/$ADDPATH$ADDNAME" ]; then
         echo "Notebook \"$ADDNAME\" successfully created"
     else
         echo "Error while creating Notbook \"$ADDNAME\""
