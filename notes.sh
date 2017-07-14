@@ -41,7 +41,7 @@ __edit() {
         edit=""
     else
         echo "Opening \"$2.md\" from notebook \"$1\""
-        edit="$NOTESDIR/$1/$2.md"
+        edit="$NOTESDIR/$1$2.md" #$1 will have a slash at the end
     fi
 
     if [[ $EDITOR == "nvim" ]] && hash nvim >/dev/null 2>&1; then
