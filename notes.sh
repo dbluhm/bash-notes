@@ -131,7 +131,7 @@ else
 fi
 
 if [ -n "$SEARCHSTR" ]; then
-    echo "Searching all notebooks for \"$SEARCHSTR...\""
+    echo "Searching all notebooks for \"$SEARCHSTR\""
     __search "$SEARCHSTR" "$NOTESDIR"
     exit 0;
 elif [ -n "$NOTEBOOKREMOVEPATH" ]; then
