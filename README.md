@@ -54,16 +54,16 @@ You should now be able to use the `notes` command and have tab completion.
 
 ```
 Usage:
-	notes notebook [note]
-		Edit or create a note. Omitting a note name will create a new note but
-		leave it unnamed.
+        notes notebook [nested notebook ...] [note]
+                Edit or create a note. Omitting a note name will create a new note but
+                leave it unnamed.
 
-	notes [--search|-s] SEARCH_TERM
-		Search notes for SEARCH_TERM.
+        notes [--search|-s] SEARCH_TERM
+                Search notes for SEARCH_TERM.
 
-	notes [--remove|-r] notebook [note]
-		Remove an entire notebook or just a note within a notebook.
+        notes [--remove|-r] notebook [nested notebook ...] [note]
+                Remove an entire notebook or just a note within a notebook.
 
-	notes [--add|-a] notebook
-		Create a new notebook
+        notes [--add|-a] [parent notebook ...] notebook
+                Create a new notebook
 ```

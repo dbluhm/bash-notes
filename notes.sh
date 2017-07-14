@@ -15,19 +15,19 @@ __usage() {
     local it="\e[3m"
     local cl="\e[0m"
     echo -e "Usage:
-\tnotes $ul${it}notebook$cl [${ul}${it}note$cl]
+\tnotes $ul${it}notebook$cl [${ul}${it}nested notebook ...$cl] [${ul}${it}note$cl]
 \t\tEdit or create a note. Omitting a note name will create a new note but
 \t\tleave it unnamed.
 
 \tnotes [--search|-s] $ul${it}SEARCH_TERM$cl
 \t\tSearch notes for $ul${it}SEARCH_TERM$cl.
 
-\tnotes [--remove|-r] $ul${it}notebook$cl [${ul}${it}note$cl]
+\tnotes [--remove|-r] $ul${it}notebook$cl [${ul}${it}nested notebook ...$cl] [${ul}${it}note$cl]
 \t\tRemove an entire notebook or just a note within a notebook.
 
-\tnotes [--add|-a] $ul${it}notebook$cl
+\tnotes [--add|-a] [${ul}${it}parent notebook ...$cl] $ul${it}notebook$cl
 \t\tCreate a new notebook"
-    exit 1;
+    exit 1
 }
 
 __edit() {
@@ -70,24 +70,41 @@ __search() {
 }
 
 __remove() {
+    if [ ! -d "$NOTESDIR/$1" ]; then
+        echo "Error: $1 is not a valid notebook name"
+        exit 1
+    elif [ -n "$2" ] && [ ! -f "$NOTESDIR/$1/$2.md" ]; then
+        echo "Error: Note \"$2.md\" could not be found in \"$1\""
+        exit 1
+    fi
     if [ -z "$2" ]; then
-        echo "Warning: Deleting notebook $1. This will remove all notes within this notebook."
+        echo "Warning: Deleting notebook \"$1\". This will remove all notes within this notebook."
         path_to_delete="$1"
     else
-        echo "Warning: Deleting note $2.md from notebook $1. You will not be able to recover this note easily."
-        path_to_delete="$1/$2.md"
+        echo "Warning: Deleting note \"$2.md\" from notebook \"$1\". You will not be able to recover this note easily."
+        path_to_delete="$1$2.md"
     fi
     read -p "Are you sure? [y/n] " -n 1 -r
     echo
     if [[ $REPLY =~ ^[yY]$ ]]; then
         rm -rf "$NOTESDIR/$path_to_delete"
-        if [ $? -eq 0 ]; then echo "$path_to_delete removed."; else echo "Error while deleting $path_to_delete"; fi
+        if [ $? -eq 0 ]; then echo "\"$path_to_delete\" removed."; else echo "Error while deleting \"$path_to_delete\""; exit 1; fi
     else
         echo "Cancelled"
     fi
-    exit 0;
+    exit 0
 }
 
+__path_until_file() {
+    path=""
+    n=$(eval "echo $1")
+    while [ -d "$NOTESDIR/$path$n" ] && [ $# -gt 0 ]; do
+        path="$path$n/"
+        shift
+        n=$(eval "echo $1")
+    done
+    echo $path
+}
 
 if [[ $# -gt 1 ]]; then
     case "$1" in
@@ -96,16 +113,17 @@ if [[ $# -gt 1 ]]; then
             SEARCHSTR=$@
             ;;
         -r|--remove)
-            NOTEBOOKREMOVEPATH=$(eval "echo $2")
-            NOTEREMOVEPATH=$(eval "echo $3")
+            NOTEBOOKREMOVEPATH=$(__path_until_file "${@:2}")
+            NOTEREMOVEPATH=$(eval "echo ${@: -1}")
+            [ -f "$NOTESDIR/$NOTEBOOKREMOVEPATH/$NOTEREMOVEPATH.md" ] || unset NOTEREMOVEPATH
             ;;
         -a|--add)
-            ADDNAME=$(eval "echo $2")
+            ADDPATH=$(__path_until_file "${@:2}")
+            ADDNAME=$(eval "echo ${@: -1}")
             ;;
         *)
-            NOTEBOOK=$(eval "echo $1")
-            shift
-            NOTE=$(eval "echo $1")
+            NOTEBOOK=$(__path_until_file "${@:1}")
+            NOTE=$(eval "echo ${@: -1}")
             ;;
     esac
 else
@@ -119,9 +137,9 @@ if [ -n "$SEARCHSTR" ]; then
 elif [ -n "$NOTEBOOKREMOVEPATH" ]; then
     __remove "$NOTEBOOKREMOVEPATH" "$NOTEREMOVEPATH"
 elif [ -n "$ADDNAME" ]; then
-    echo "Creating new notebook $ADDNAME..."
-    mkdir "$NOTESDIR/$ADDNAME"
-    if [ -d "$NOTESDIR/$ADDNAME" ]; then
+    echo "Creating new notebook $ADDPATH$ADDNAME..."
+    mkdir "$NOTESDIR/$ADDPATH$ADDNAME"
+    if [ -d "$NOTESDIR/$ADDPATH$ADDNAME" ]; then
         echo "Notebook \"$ADDNAME\" successfully created"
     else
         echo "Error while creating Notbook \"$ADDNAME\""
